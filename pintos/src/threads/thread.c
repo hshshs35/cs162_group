@@ -514,7 +514,7 @@ next_thread_to_run (void)
     for (e = list_begin (&sleep_list); e != list_end (&sleep_list); e = list_next (e)) {
       cur = list_entry(e, struct thread, elem);
       if (cur->wake_ticks <= cur_ticks) {
-        list_remove(cur);
+        list_remove(e);
         thread_unblock(cur);
       }
     }
