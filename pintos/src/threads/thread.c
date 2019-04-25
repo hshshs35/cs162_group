@@ -228,7 +228,7 @@ thread_sleep (int64_t ticks) {
 
   struct thread *cur;
   cur = thread_current();
-  cur->wake_ticks = ticks;
+  cur->wake_ticks = timer_ticks() + ticks;
   list_push_back(&sleep_list, &cur->elem);
   thread_block ();
 }
