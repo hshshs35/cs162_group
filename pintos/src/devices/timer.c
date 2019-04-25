@@ -90,6 +90,7 @@ void
 timer_sleep (int64_t ticks)
 {
   ASSERT (intr_get_level () == INTR_ON);
+  enum intr_level old_level;
   int wake_ticks = timer_ticks() + ticks;
 
   old_level = intr_disable ();
