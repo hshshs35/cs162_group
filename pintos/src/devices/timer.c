@@ -90,9 +90,10 @@ void
 timer_sleep (int64_t ticks)
 {
   ASSERT (intr_get_level () == INTR_ON);
+  int wake_ticks = timer_ticks() + ticks;
 
   old_level = intr_disable ();
-  thread_sleep(ticks);
+  thread_sleep(wake_ticks);
   intr_set_level (old_level);
 }
 

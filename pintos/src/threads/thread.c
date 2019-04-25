@@ -222,13 +222,13 @@ thread_block (void)
 }
 
 void
-thread_sleep (int64_t ticks) {
+thread_sleep (int64_t wake_ticks) {
   ASSERT (!intr_context ());
   ASSERT (intr_get_level () == INTR_OFF);
 
   struct thread *cur;
   cur = thread_current();
-  cur->wake_ticks = timer_ticks() + ticks;
+  cur->wake_ticks = wake_ticks;
   list_push_back(&sleep_list, &cur->elem);
   thread_block ();
 }
