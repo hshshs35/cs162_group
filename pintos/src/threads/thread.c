@@ -227,11 +227,11 @@ thread_sleep (int64_t wake_ticks) {
   ASSERT (!intr_context ());
   ASSERT (intr_get_level () == INTR_OFF);
 
-  struct thread *cur;
-  cur = thread_current();
-  cur->wake_ticks = wake_ticks;
-  list_push_back(&sleep_list, &cur->elem);
-  thread_block ();
+//  struct thread *cur;
+//  cur = thread_current();
+//  cur->wake_ticks = wake_ticks;
+//  list_push_back(&sleep_list, &cur->elem);
+//  thread_block ();
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
