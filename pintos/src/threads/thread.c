@@ -23,6 +23,7 @@
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
+static struct list sleep_list;
 
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
@@ -218,6 +219,18 @@ thread_block (void)
 
   thread_current ()->status = THREAD_BLOCKED;
   schedule ();
+}
+
+void
+thread_sleep (int64_t ticks) {
+  ASSERT (!intr_context ());
+  ASSERT (intr_get_level () == INTR_OFF);
+
+  struct thread *cur;
+  cur = thread_current();
+  cur->wake_ticks = ticks;
+  list_push_back(&sleep_list, &cur->elem);
+  thread_block ();
 }
 
 /* Transitions a blocked thread T to the ready-to-run state.
@@ -490,6 +503,23 @@ alloc_frame (struct thread *t, size_t size)
 static struct thread *
 next_thread_to_run (void)
 {
+  if (!list_empty(&sleep_list)) {
+    struct list_elem *e;
+    struct thread *cur;
+    int64_t cur_ticks;
+
+    cur_ticks = timer_ticks();
+
+    ASSERT (intr_get_level () == INTR_OFF);
+    for (e = list_begin (&sleep_list); e != list_end (&sleep_list); e = list_next (e)) {
+      cur = list_entry(e, struct thread, elem);
+      if (cur->wake_ticks <= cur_ticks) {
+        list_remove(cur);
+        thread_unblock(cur);
+      }
+    }
+  }
+
   if (list_empty (&ready_list))
     return idle_thread;
   else
