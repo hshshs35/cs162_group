@@ -278,7 +278,7 @@ thread_current (void)
      recursion can cause stack overflow. */
   ASSERT (is_thread (t));
   if (t->status != THREAD_RUNNING) {
-      barrier();
+      printf("thread name is %s", t->name);
   }
   ASSERT (t->status == THREAD_RUNNING);
 
