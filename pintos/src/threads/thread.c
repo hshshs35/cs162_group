@@ -11,6 +11,7 @@
 #include "threads/switch.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
+#include "devices/timer.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -23,7 +24,7 @@
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
-
+static struct list sleep_list;
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
 static struct list all_list;
@@ -91,6 +92,7 @@ thread_init (void)
 
   lock_init (&tid_lock);
   list_init (&ready_list);
+  list_init (&sleep_list);
   list_init (&all_list);
 
   /* Set up a thread structure for the running thread. */
@@ -314,6 +316,26 @@ thread_yield (void)
   intr_set_level (old_level);
 }
 
+void
+thread_sleep(int64_t wake_tick) {
+  struct thread *cur = thread_current();
+  enum intr_level old_level;
+
+  ASSERT(!intr_context());
+
+  old_level = intr_disable();
+  if (cur != idle_thread) {
+    cur->wake_tick = wake_tick;
+    list_push_back(&sleep_list, &cur->elem);
+    thread_block();
+  }
+  else {
+    cur->status = THREAD_READY;
+    schedule();
+  }
+  intr_set_level(old_level);
+}
+
 /* Invoke function 'func' on all threads, passing along 'aux'.
    This function must be called with interrupts off. */
 void
@@ -490,6 +512,19 @@ alloc_frame (struct thread *t, size_t size)
 static struct thread *
 next_thread_to_run (void)
 {
+  if (!list_empty(&sleep_list)) {
+    struct list_elem *e;
+    for (e = list_begin(&sleep_list); e != list_end(&sleep_list);
+         e = list_next(e)) {
+      struct thread *cur = list_entry(e,
+      struct thread, elem);
+      if (cur->wake_tick <= timer_ticks()) {
+        list_remove(e);
+        cur->status = THREAD_READY;
+        list_push_back(&ready_list, &e->elem);
+      }
+    }
+  }
   if (list_empty (&ready_list))
     return idle_thread;
   else
