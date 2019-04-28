@@ -521,7 +521,7 @@ next_thread_to_run (void)
       if (cur->wake_tick <= timer_ticks()) {
         list_remove(e);
         cur->status = THREAD_READY;
-        list_push_back(&ready_list, &e->elem);
+        list_push_back(&ready_list, &cur->elem);
       }
     }
   }
