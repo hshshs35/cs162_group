@@ -518,9 +518,7 @@ next_thread_to_run (void)
          e = list_next(e)) {
       struct thread *cur = list_entry(e, struct thread, elem);
       if (cur->wake_tick <= timer_ticks()) {
-        if (!is_interior(e)) {
-          printf("the thread name is %s\n", cur->name);
-        }
+        printf("the thread name is %s\n", cur->name);
         list_remove(e);
         cur->status = THREAD_READY;
         list_push_back(&ready_list, &cur->elem);
