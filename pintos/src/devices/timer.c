@@ -91,6 +91,7 @@ timer_sleep (int64_t ticks)
 {
   int64_t start = timer_ticks ();
   int64_t wake_tick = start + ticks;
+  printf("timer_sleep is called with ticks %d\n", ticks);
 
   ASSERT (intr_get_level () == INTR_ON);
   thread_sleep(wake_tick);
