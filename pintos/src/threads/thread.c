@@ -327,11 +327,13 @@ thread_sleep(int64_t wake_tick) {
 
   old_level = intr_disable();
   if (cur != idle_thread) {
+    printf("Now put thread %s to sleep\n", cur->name);
     cur->wake_tick = wake_tick;
     list_push_back(&sleep_list, &cur->elem);
     thread_block();
   }
   else {
+    printf("Thread %s is set to ready state\n", cur->name);
     cur->status = THREAD_READY;
     schedule();
   }
