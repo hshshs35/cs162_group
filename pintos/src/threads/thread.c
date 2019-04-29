@@ -97,7 +97,9 @@ thread_init (void)
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
+  printf("ready to set up the main thread\n");
   init_thread (initial_thread, "main", PRI_DEFAULT);
+  printf("main thread set up is done\n");
   initial_thread->status = THREAD_RUNNING;
   initial_thread->tid = allocate_tid ();
 }
